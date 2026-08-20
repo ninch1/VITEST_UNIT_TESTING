@@ -77,20 +77,27 @@ describe('examples.shippingCost', () => {
   });
 
   // better: test exact prices for interior weights
-  it('charges correct prices for interior weights', () => {
-    expect(shippingCost(0.5)).toBe(3.99);
-    expect(shippingCost(3)).toBe(5.99);
-    expect(shippingCost(10)).toBe(8.99);
-    expect(shippingCost(50)).toBe(14.99);
+  it.each([
+    { weight: 0.5, expected: 3.99 },
+    { weight: 3, expected: 5.99 },
+    { weight: 10, expected: 8.99 },
+    { weight: 50, expected: 14.99 },
+  ])('charges $expected for weight $weight', ({ weight, expected }) => {
+    expect(shippingCost(weight)).toBe(expected);
   });
 
   // boundary testing: test boundaries of each tier
-  it('charges correct prices at boundaries', () => {
-    expect(shippingCost(1)).toBe(3.99); // upper bound of first tier
-    expect(shippingCost(5)).toBe(5.99); // upper bound of second tier
-    expect(shippingCost(20)).toBe(8.99); // upper bound of third tier
-    expect(shippingCost(21)).toBe(14.99); // above third tier
-  });
+  it.each([
+    { weight: 1, expected: 3.99 },
+    { weight: 5, expected: 5.99 },
+    { weight: 20, expected: 8.99 },
+    { weight: 21, expected: 14.99 },
+  ])(
+    'charges correct tiers at boundary: $weight => $expected',
+    ({ weight, expected }) => {
+      expect(shippingCost(weight)).toBe(expected);
+    },
+  );
 
   // test valid coupon behavior
   it('applies FREESHIPPING coupon exactly', () => {

@@ -1,6 +1,19 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createCards } from '../src/createCards';
 import { deal } from '../src/deal';
+import { logDealRound } from '../src/helpers/loggers';
+
+vi.mock('../src/helpers/loggers', async () => {
+  const originals = await vi.importActual('../src/helpers/loggers');
+
+  return {
+    ...originals,
+    logDealRound: vi.fn(() => {
+      console.log('logDealRound mock fn called');
+      return true;
+    }),
+  };
+});
 
 describe('deal', () => {
   const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
@@ -35,5 +48,16 @@ describe('deal', () => {
     expect(hands[1]).toHaveLength(7);
     expect(hands[2]).toHaveLength(7);
     expect(hands[3]).toHaveLength(7);
+  });
+
+  it('calls the loggera correct number of times', () => {
+    const cards = createCards({ suits, values });
+
+    logDealRound.mockClear();
+
+    deal(cards, 5, 3);
+
+    expect(logDealRound).toHaveBeenCalledTimes(5);
+    expect(logDealRound).toHaveReturnedWith(true);
   });
 });
